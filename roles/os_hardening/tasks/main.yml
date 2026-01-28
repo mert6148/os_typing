@@ -1,0 +1,21 @@
+---
+# Main tasks for os_hardening role
+# Applies OS-level hardening for Linux and Windows
+
+- name: Include Linux hardening tasks
+  include_tasks: linux.yml
+  when: ansible_os_family in ['Debian', 'RedHat', 'Ubuntu']
+  tags: [hardening, linux]
+
+- name: Include Windows hardening tasks
+  include_tasks: windows.yml
+  when: ansible_os_family == 'Windows'
+  tags: [hardening, windows]
+
+- name: Display hardening status
+  debug:
+    msg: |
+      OS Hardening completed on {{ ansible_hostname }} ({{ ansible_os_family }})
+      - Host: {{ ansible_fqdn }}
+      - OS: {{ ansible_distribution }} {{ ansible_distribution_version }}
+  tags: [hardening, always]

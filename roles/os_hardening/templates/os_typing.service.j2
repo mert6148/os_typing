@@ -1,0 +1,34 @@
+# Ansible-managed systemd unit file for os_typing service
+# Generated from roles/os_hardening/templates/os_typing.service.j2
+
+[Unit]
+Description=OS Typing Security Demo Service
+After=network.target
+Documentation=https://github.com/{{ github_user }}/os_typing
+
+[Service]
+Type=simple
+User={{ os_hardening_service_user }}
+Group={{ os_hardening_service_group }}
+WorkingDirectory=/opt/os_typing
+ExecStart=/opt/os_typing/bin/os_typing
+Restart=on-failure
+RestartSec=10s
+
+# Security hardening options
+PrivateTmp=yes
+NoNewPrivileges=yes
+ReadOnlyPaths=/etc /usr
+ReadWritePaths=/var/log /var/lib/{{ os_hardening_service_name }}
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier={{ os_hardening_service_name }}
+
+[Install]
+WantedBy=multi-user.target

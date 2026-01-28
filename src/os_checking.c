@@ -2,12 +2,19 @@
 
 #include <stdio.h>
 
-/*
- * Portable OS detection helpers (compile-time checks).
- * These use standard predefined macros that most compilers set.
- * Keep functions simple and testable; add runtime checks if needed.
+/**
+ * @file os_checking.c
+ * @brief Implementation of portable OS detection helpers.
+ * 
+ * Uses compile-time preprocessor checks to determine the operating system
+ * at compile time. Functions are simple, fast, and suitable for conditional
+ * compilation paths and initialization routines.
  */
 
+/**
+ * @brief Implementation: is_windows()
+ * Checks Windows-specific predefined macros (_WIN32, _WIN64).
+ */
 bool is_windows(void) {
 #if defined(_WIN32) || defined(_WIN64)
     return true;

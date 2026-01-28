@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OS Typing Dağıtım Rehberi — Linux ve Windows sunucularına deployment">
+    <meta name="keywords" content="dağıtım, deployment, Ansible, Linux, Windows">
+    <meta property="og:title" content="Dağıtım Rehberi — OS Typing">
+    <meta property="og:description" content="Linux ve Windows sunucularına deployment adımları">
+    <title>Dağıtım Rehberi — OS Typing</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <span class="logo">◆</span>
+                <span class="title">OS Typing</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Ana Sayfa</a></li>
+                <li><a href="quickstart.html">Hızlı Başlangıç</a></li>
+                <li><a href="deployment.html" class="active">Dağıtım</a></li>
+                <li><a href="c-cpp-guide.html">C/C++</a></li>
+                <li><a href="python-guide.html">Python3</a></li>
+                <li><a href="aspnet-guide.html">ASP.NET</a></li>
+                <li><a href="api/">API Docs</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="content">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Ana Sayfa</a>
+                <span class="separator">/</span>
+                <span class="active">Dağıtım</span>
+            </div>
+
+            <h1>Dağıtım Rehberi</h1>
+            
+            <div class="toc">
+                <h2>İçindekiler</h2>
+                <ul>
+                    <li><a href="#linux">Linux Dağıtımı</a></li>
+                    <li><a href="#windows">Windows Dağıtımı</a></li>
+                    <li><a href="#verification">Doğrulama</a></li>
+                    <li><a href="#troubleshooting">Sorun Giderme</a></li>
+                </ul>
+            </div>
+
+            <h2 id="linux">Linux Dağıtımı</h2>
+
+            <h3>Ön Koşullar</h3>
+            <ul>
+                <li>Ubuntu 20.04 LTS veya daha yeni (veya Debian 11+)</li>
+                <li>Root veya sudo erişimi</li>
+                <li>Ansible 2.9+</li>
+                <li>Internet bağlantısı</li>
+            </ul>
+
+            <h3>1. Ansible'ı Yükle</h3>
+            <pre><code>sudo apt-get update
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt-get install -y ansible</code></pre>
+
+            <h3>2. Depoyu Klonu Oluştur</h3>
+            <pre><code>git clone https://github.com/yourusername/os_typing.git
+cd os_typing</code></pre>
+
+            <h3>3. Inventory Dosyasını Yapılandır</h3>
+            <pre><code>[linux]
+server1 ansible_host=192.168.1.10 ansible_user=ubuntu
+server2 ansible_host=192.168.1.11 ansible_user=ubuntu
+
+[linux:vars]
+ansible_become_pass=your_sudo_password</code></pre>
+
+            <h3>4. SSH Anahtarlarını Yapılandır (Önerilir)</h3>
+            <pre><code># Lokal makinede SSH anahtarı oluştur
+ssh-keygen -t ed25519 -f ~/.ssh/os_typing
+
+# Sunucuya anahtarı kopyala
+ssh-copy-id -i ~/.ssh/os_typing ubuntu@192.168.1.10</code></pre>
+
+            <h3>5. Playbook'u Çalıştır</h3>
+            <pre><code># Dry run (kontrol modu)
+ansible-playbook -i inventory/hosts.ini site.yml --check
+
+# Gerçek çalıştırma
+ansible-playbook -i inventory/hosts.ini site.yml
+
+# Belirli sunucuya
+ansible-playbook -i inventory/hosts.ini site.yml --limit server1</code></pre>
+
+            <h2 id="windows">Windows Dağıtımı</h2>
+
+            <h3>Ön Koşullar</h3>
+            <ul>
+                <li>Windows Server 2016+ veya Windows 10/11</li>
+                <li>Administrator erişimi</li>
+                <li>PowerShell 5.1+</li>
+                <li>WinRM etkinleştirilmiş</li>
+            </ul>
+
+            <h3>1. WinRM'i Etkinleştir (Target Sunucuda)</h3>
+            <pre><code># PowerShell'i Yönetici olarak aç
+Enable-PSRemoting -Force
+Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*" -Force
+Restart-Service WinRM</code></pre>
+
+            <h3>2. Inventory Dosyasını Yapılandır</h3>
+            <pre><code>[windows]
+win_server1 ansible_host=192.168.1.20 ansible_user=Administrator ansible_password=YourPassword ansible_connection=winrm ansible_port=5985
+
+[windows:vars]
+ansible_winrm_transport=credssp
+ansible_winrm_server_cert_validation=ignore</code></pre>
+
+            <h3>3. Ansible'ı Yapılandır (Linux/macOS Control Node)</h3>
+            <pre><code>pip install ansible[windows] pywinrm</code></pre>
+
+            <h3>4. Windows Playbook'unu Çalıştır</h3>
+            <pre><code>ansible-playbook -i inventory/hosts.ini site.yml --limit windows</code></pre>
+
+            <h3>5. PowerShell Testlerini Çalıştır</h3>
+            <pre><code># Lokal Windows sunucusunda
+.\tests\windows\Run-Tests.ps1 -ReportPath test-results</code></pre>
+
+            <h2 id="verification">Doğrulama</h2>
+
+            <h3>Linux Doğrulama Kontrol Listesi</h3>
+            <pre><code># 1. Sysctl değerlerini kontrol et
+sudo sysctl -a | grep -E "forwarding|redirects|log_martians"
+
+# 2. UFW durumunu kontrol et
+sudo ufw status numbered
+
+# 3. Hizmet durumunu kontrol et
+sudo systemctl status os_typing
+
+# 4. os_controlsystem aracını çalıştır
+./scripts/c-c++/os_controlsystem --checks all</code></pre>
+
+            <h3>Windows Doğrulama Kontrol Listesi</h3>
+            <pre><code># 1. Firewall durumunu kontrol et
+Get-NetFirewallProfile
+
+# 2. SMB v1 durumunu kontrol et
+Get-WindowsOptionalFeature -Online -FeatureName SMB1Protocol
+
+# 3. Defender durumunu kontrol et
+Get-MpPreference
+
+# 4. Pester testlerini çalıştır
+.\tests\windows\Run-Tests.ps1</code></pre>
+
+            <h2 id="troubleshooting">Sorun Giderme</h2>
+
+            <div class="alert alert-warning">
+                <strong>SSH Bağlantı Hatası</strong><br>
+                <code>ansible all -i inventory/hosts.ini -m ping -vvv</code>
+            </div>
+
+            <div class="alert alert-warning">
+                <strong>WinRM Bağlantı Hatası</strong><br>
+                Target sunucuda çalıştır:<br>
+                <code>Enable-PSRemoting -Force</code><br>
+                <code>Set-Item WSMan:\localhost\Client\TrustedHosts -Value "*" -Force</code>
+            </div>
+
+            <div class="alert alert-warning">
+                <strong>UFW İzin Sorunları</strong><br>
+                Playbook'u yeniden çalıştır (idempotent):<br>
+                <code>ansible-playbook -i inventory/hosts.ini site.yml --check</code>
+            </div>
+
+            <h2>Güvenlik En İyi Uygulamaları</h2>
+            <ul class="best-practices">
+                <li>🔑 SSH anahtarlarını kullan (parolaları değil)</li>
+                <li>🔐 Ansible Vault kullan hassas veriler için</li>
+                <li>🔒 Firewall kurallarını test ortamında doğrula</li>
+                <li>📋 Tüm değişiklikleri version control'de tutun</li>
+                <li>🧪 Üretimi etkileyen değişiklikleri önce test ortamında test et</li>
+                <li>📊 Deployment'dan sonra sistem loglarını gözlemle</li>
+                <li>🔄 Playbook'u düzenli olarak çalıştır (idempotency doğrulaması)</li>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 32px; text-align: left;">
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">Rehber</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="index.html">Ana Sayfa</a></li>
+                        <li><a href="quickstart.html">Hızlı Başlangıç</a></li>
+                        <li><a href="deployment.html">Dağıtım</a></li>
+                        <li><a href="architecture.html">Mimari</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">Kaynaklar</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="api/">API Docs</a></li>
+                        <li><a href="https://github.com/yourusername/os_typing">GitHub</a></li>
+                        <li><a href="https://github.com/yourusername/os_typing/issues">Sorun Bildir</a></li>
+                        <li><a href="https://github.com/yourusername/os_typing/pulls">PR Gönder</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 24px 0;">
+            <p>&copy; 2026 OS Typing Projesi. MIT Lisansı ile yayınlanmıştır.</p>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" title="Yukarı Git">↑</button>
+
+    <script>
+        // Back to Top Button
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Copy to Clipboard for Code Blocks
+        document.querySelectorAll('pre').forEach(block => {
+            const container = document.createElement('div');
+            container.className = 'code-container';
+            
+            const button = document.createElement('button');
+            button.className = 'copy-button';
+            button.textContent = '📋 Kopyala';
+            
+            button.addEventListener('click', () => {
+                const code = block.querySelector('code') || block;
+                const text = code.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    button.textContent = '✓ Kopyalandı';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.textContent = '📋 Kopyala';
+                        button.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+            
+            block.parentNode.insertBefore(container, block);
+            container.appendChild(block);
+            container.appendChild(button);
+        });
+    </scriptn>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 OS Typing Projesi. <a href="https://github.com/yourusername/os_typing">GitHub'da Görüntüle</a></p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,37 @@
+---
+# Main Ansible playbook for os_typing hardening
+# Applies OS security hardening to all hosts
+
+- name: Apply OS hardening to all hosts
+  hosts: all
+  become: true
+  gather_facts: true
+
+  pre_tasks:
+    - name: Display hardening information
+      debug:
+        msg: |
+          OS Typing Hardening Playbook
+          =============================
+          Target hosts: {{ groups['all'] | join(', ') }}
+          OS: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          Python: {{ ansible_python_version }}
+      run_once: true
+
+  roles:
+    - role: os_hardening
+      tags: [hardening]
+
+  post_tasks:
+    - name: Run os_controlsystem checks (Linux only)
+      shell: |
+        if command -v os_controlsystem &> /dev/null; then
+          os_controlsystem --checks all --config /etc/os_typing/hardening_config.json || true
+        fi
+      when: ansible_os_family in ['Debian', 'RedHat', 'Ubuntu']
+      tags: [verification]
+
+    - name: Display final status
+      debug:
+        msg: "OS hardening playbook completed successfully on {{ ansible_hostname }}"
+      tags: [always]

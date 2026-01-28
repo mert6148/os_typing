@@ -5,7 +5,22 @@
 #include <string.h>
 #include <ctype.h>
 
-/* Portable getline fallback for MSVC/older platforms. */
+/**
+ * @file terminal.c
+ * @brief Implementation of a simple command-line terminal/REPL loop.
+ * 
+ * Provides a portable line-based interface for applications to expose
+ * pluggable commands. Handles input parsing, tokenization, and dispatch
+ * to registered command handlers.
+ */
+
+/**
+ * @brief Portable getline() fallback for MSVC and older platforms.
+ * @param lineptr Pointer to line buffer.
+ * @param n Pointer to buffer capacity.
+ * @param stream Input stream (typically stdin).
+ * @return Number of characters read, or -1 on EOF/error.
+ */
 static ssize_t portable_getline(char **lineptr, size_t *n, FILE *stream) {
 #ifdef _MSC_VER
     /* simple fallback using fgets */

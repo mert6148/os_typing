@@ -1,3 +1,23 @@
+/**
+ * @file os_controlsystem.cpp
+ * @brief OS hardening control/check utility for os_typing project.
+ * 
+ * Provides portable system checks for:
+ * - Linux: sysctl kernel parameters, systemd service status, UFW firewall rules.
+ * - Windows: presence of hardening scripts and suggested checks.
+ * 
+ * Supports config-driven checks via JSON file (tests/hardening_config.json).
+ * Reports per-key results suitable for conversion to JUnit XML for CI.
+ * 
+ * @usage
+ *   - Build: `g++ -std=c++17 -O2 -o os_controlsystem os_controlsystem.cpp`
+ *   - Run: `./os_controlsystem --checks all --config tests/hardening_config.json`
+ * 
+ * @example
+ *   Output line: `[sysctl:net.ipv4.ip_forward] OK`
+ *   Output line: `[sysctl:net.ipv6.conf.default.forwarding] MISMATCH expected=0 actual=1`
+ */
+
 // os_controlsystem.cpp
 // Portable system control/check utility for os_typing project.
 // - On Linux: checks for sysctl file, systemd service status, and UFW rules.

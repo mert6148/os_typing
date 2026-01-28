@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OS Typing Proje Mimarisi — Sistem tasarımı, bileşenler, veri akışı">
+    <meta name="keywords" content="mimari, tasarım, bileşenler, sistem, veri akışı">
+    <meta property="og:title" content="Proje Mimarisi — OS Typing">
+    <meta property="og:description" content="Sistem tasarımı ve bileşen ilişkileri">
+    <title>Proje Mimarisi — OS Typing</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <span class="logo">◆</span>
+                <span class="title">OS Typing</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Ana Sayfa</a></li>
+                <li><a href="quickstart.html">Hızlı Başlangıç</a></li>
+                <li><a href="deployment.html">Dağıtım</a></li>
+                <li><a href="c-cpp-guide.html">C/C++</a></li>
+                <li><a href="python-guide.html">Python3</a></li>
+                <li><a href="aspnet-guide.html">ASP.NET</a></li>
+                <li><a href="api/">API Docs</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="content">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Ana Sayfa</a>
+                <span class="separator">/</span>
+                <span class="active">Mimari</span>
+            </div>
+
+            <h1>Proje Mimarisi</h1>
+            
+            <h2>Üst Düzey Mimari</h2>
+            <pre class="diagram">
+┌─────────────────────────────────────────────────────┐
+│         GitHub Repository (os_typing)               │
+├─────────────────────────────────────────────────────┤
+│                                                      │
+│  ┌──────────────────────────────────────────────┐   │
+│  │        Source Code & Configuration           │   │
+│  ├──────────────────────────────────────────────┤   │
+│  │ • C/C++ Modules (src/, scripts/c-c++/)      │   │
+│  │ • Python Tools (scripts/tests/)              │   │
+│  │ • PHP Application (index.php, db_security)  │   │
+│  │ • Ansible Roles & Playbooks                 │   │
+│  │ • Tests (Linux, Windows, Molecule)          │   │
+│  └──────────────────────────────────────────────┘   │
+│                         ↓                            │
+│  ┌──────────────────────────────────────────────┐   │
+│  │         GitHub Actions CI/CD                 │   │
+│  ├──────────────────────────────────────────────┤   │
+│  │ • PHP Lint & Static Analysis (PHPCS/PHPStan)│   │
+│  │ • C/C++ Build & Tests                        │   │
+│  │ • Python Tests (Testinfra)                  │   │
+│  │ • Windows Tests (Pester)                    │   │
+│  │ • Ansible Lint & Molecule Tests             │   │
+│  │ • Doxygen Documentation                     │   │
+│  └──────────────────────────────────────────────┘   │
+│                         ↓                            │
+│  ┌──────────────────────────────────────────────┐   │
+│  │       GitHub Pages (Docs & API Reference)    │   │
+│  └──────────────────────────────────────────────┘   │
+│                                                      │
+└─────────────────────────────────────────────────────┘
+            </pre>
+
+            <h2>Bileşen Diyagramı</h2>
+            <pre class="diagram">
+┌─────────────────────────────────────────────────┐
+│             OS Typing Project                   │
+├─────────────────────────────────────────────────┤
+│                                                 │
+│  ┌────────────────┐  ┌──────────────────────┐  │
+│  │  C/C++ Modules │  │  Python Tools        │  │
+│  ├────────────────┤  ├──────────────────────┤  │
+│  │ • os_checking  │  │ • JUnit Converter    │  │
+│  │ • terminal     │  │ • Testinfra Tests    │  │
+│  │ • os_control   │  │ • Test Runners       │  │
+│  └────────────────┘  └──────────────────────┘  │
+│         ↓                      ↓                │
+│  ┌────────────────────────────────────────┐    │
+│  │     Ansible Automation (roles/)        │    │
+│  ├────────────────────────────────────────┤    │
+│  │  os_hardening role                     │    │
+│  │  ├── Linux tasks (sysctl, UFW)        │    │
+│  │  ├── Windows tasks (Firewall, SMBv1)  │    │
+│  │  └── Templates (systemd unit)         │    │
+│  └────────────────────────────────────────┘    │
+│         ↓                                       │
+│  ┌────────────────────────────────────────┐    │
+│  │     Target Systems                     │    │
+│  ├────────────────────────────────────────┤    │
+│  │ • Linux Servers (Hardened sysctl)      │    │
+│  │ • Windows Servers (Firewall, SMBv1)   │    │
+│  │ • Services (systemd, security)        │    │
+│  └────────────────────────────────────────┘    │
+│         ↑                                       │
+│  ┌────────────────────────────────────────┐    │
+│  │     Verification & Testing             │    │
+│  ├────────────────────────────────────────┤    │
+│  │ • Testinfra (Linux)                    │    │
+│  │ • Pester (Windows)                     │    │
+│  │ • Molecule (Ansible role)              │    │
+│  │ • JUnit Reports                        │    │
+│  └────────────────────────────────────────┘    │
+│                                                 │
+└─────────────────────────────────────────────────┘
+            </pre>
+
+            <h2>Veri Akışı</h2>
+            <pre class="diagram">
+1. Source Code Pushed to GitHub
+        ↓
+2. GitHub Actions Triggered
+        ↓
+   ├─→ PHP Lint (PHPCS, PHPStan)
+   ├─→ C/C++ Build & Tests
+   ├─→ Ansible Lint & Syntax Check
+   ├─→ Molecule Tests (Ansible role)
+   ├─→ Testinfra Tests (Linux hardening)
+   ├─→ Windows Pester Tests
+   └─→ Doxygen Documentation Build
+        ↓
+3. Test Reports Generated (JUnit XML)
+        ↓
+4. GitHub Pages Updated (Docs + API)
+        ↓
+5. Artifacts Published
+            </pre>
+
+            <h2>Dosya Yapısı</h2>
+            <div class="file-structure">
+                <pre>os_typing/
+├── .github/workflows/
+│   └── ci.yml                    # GitHub Actions CI workflow
+├── src/                          # C/C++ kaynak kodları
+│   ├── os_checking.c/h          # OS detection
+│   ├── terminal.c/h              # REPL framework
+│   └── ...
+├── scripts/
+│   ├── c-c++/
+│   │   └── os_controlsystem.cpp  # Control utility
+│   ├── tests/
+│   │   ├── os_controlsystem_to_junit.py
+│   │   ├── run_os_controlsystem_test.sh
+│   │   └── run_os_controlsystem_test.ps1
+│   ├── build.sh / build.ps1      # Build scripts
+│   └── ...
+├── tests/
+│   ├── test_os_hardening.py      # Testinfra tests (Linux)
+│   └── windows/
+│       ├── HardeningTests.ps1    # Pester tests
+│       ├── helpers.ps1
+│       └── Run-Tests.ps1
+├── roles/
+│   └── os_hardening/             # Ansible role
+│       ├── tasks/
+│       ├── handlers/
+│       ├── defaults/
+│       ├── templates/
+│       └── vars/
+├── molecule/
+│   └── default/                  # Molecule test scenario
+│       ├── molecule.yml
+│       ├── converge.yml
+│       ├── verify.yml
+│       └── tests/test_default.py
+├── inventory/
+│   └── hosts.ini                 # Ansible inventory
+├── docs/
+│   ├── index.html                # Landing page
+│   ├── quickstart.html
+│   ├── deployment.html
+│   ├── architecture.html
+│   ├── index.md                  # GitHub Pages landing
+│   ├── assets/style.css
+│   └── html/                     # Doxygen output
+├── site.yml                      # Main Ansible playbook
+├── Doxyfile                      # Doxygen configuration
+├── requirements.yml              # Ansible Galaxy requirements
+├── ansible.cfg                   # Ansible configuration
+├── .gitignore
+└── README.md                     # Main documentation
+            </pre>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 32px; text-align: left;">
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">Rehber</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="index.html">Ana Sayfa</a></li>
+                        <li><a href="quickstart.html">Hızlı Başlangıç</a></li>
+                        <li><a href="deployment.html">Dağıtım</a></li>
+                        <li><a href="architecture.html">Mimari</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">Kaynaklar</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="api/">API Docs</a></li>
+                        <li><a href="https://github.com/yourusername/os_typing">GitHub</a></li>
+                        <li><a href="https://github.com/yourusername/os_typing/issues">Sorun Bildir</a></li>
+                        <li><a href="https://github.com/yourusername/os_typing/pulls">PR Gönder</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 24px 0;">
+            <p>&copy; 2026 OS Typing Projesi. MIT Lisansı ile yayınlanmıştır.</p>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" title="Yukarı Git">↑</button>
+
+    <script>
+        // Back to Top Button
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Copy to Clipboard for Code Blocks
+        document.querySelectorAll('pre').forEach(block => {
+            const container = document.createElement('div');
+            container.className = 'code-container';
+            
+            const button = document.createElement('button');
+            button.className = 'copy-button';
+            button.textContent = '📋 Kopyala';
+            
+            button.addEventListener('click', () => {
+                const code = block.querySelector('code') || block;
+                const text = code.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    button.textContent = '✓ Kopyalandı';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.textContent = '📋 Kopyala';
+                        button.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+            
+            block.parentNode.insertBefore(container, block);
+            container.appendChild(block);
+            container.appendChild(button);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OS Typing C/C++ Modülleri — os_checking, terminal, os_controlsystem">
+    <meta name="keywords" content="C, C++, modüller, os_checking, terminal, os_controlsystem">
+    <meta property="og:title" content="C/C++ Modülleri — OS Typing">
+    <meta property="og:description" content="OS detection, terminal REPL, hardening control utilities">
+    <title>C/C++ Modülleri — OS Typing</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <span class="logo">◆</span>
+                <span class="title">OS Typing</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Ana Sayfa</a></li>
+                <li><a href="quickstart.html">Hızlı Başlangıç</a></li>
+                <li><a href="deployment.html">Dağıtım</a></li>
+                <li><a href="c-cpp-guide.html" class="active">C/C++</a></li>
+                <li><a href="python-guide.html">Python3</a></li>
+                <li><a href="aspnet-guide.html">ASP.NET</a></li>
+                <li><a href="api/">API Docs</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="content">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Ana Sayfa</a>
+                <span class="separator">/</span>
+                <span class="active">C/C++ Modülleri</span>
+            </div>
+
+            <h1>C/C++ Modülleri Rehberi</h1>
+
+            <div class="alert alert-info">
+                <strong>Bilgi:</strong> Tüm C/C++ kaynak kodları Doxygen ile dokümante edilmiştir. <a href="api/">API Dokümantasyonu</a>'nda detayları görebilirsiniz.
+            </div>
+
+            <h2>Modüllere Genel Bakış</h2>
+
+            <div class="components-list">
+                <div class="component">
+                    <h3>📁 src/os_checking.c/h</h3>
+                    <p><strong>Amaç:</strong> Platform-agnostik işletim sistemi algılaması</p>
+                    <p><strong>Desteklenen OS'ler:</strong> Windows, Linux, macOS</p>
+                    <p><strong>Fonksiyonlar:</strong></p>
+                    <ul>
+                        <li><code>get_os_type()</code> — OS türünü döndür (WINDOWS, LINUX, MACOS)</li>
+                        <li><code>get_os_version()</code> — OS sürümü bilgisi</li>
+                        <li><code>get_processor_count()</code> — CPU sayısı</li>
+                        <li><code>is_64bit()</code> — 64-bit işletim sistemi kontrolü</li>
+                    </ul>
+                </div>
+
+                <div class="component">
+                    <h3>📁 src/terminal.c/h</h3>
+                    <p><strong>Amaç:</strong> Etkileşimli REPL (Read-Eval-Print-Loop) framework'ü</p>
+                    <p><strong>Kullanım:</strong> İnteraktif CLI uygulamaları için</p>
+                    <p><strong>Fonksiyonlar:</strong></p>
+                    <ul>
+                        <li><code>terminal_init()</code> — Terminal başlat</li>
+                        <li><code>terminal_read()</code> — Kullanıcı girdisi oku</li>
+                        <li><code>terminal_print()</code> — Çıktı yazdır</li>
+                        <li><code>terminal_prompt_set()</code> — Prompt'u ayarla</li>
+                    </ul>
+                </div>
+
+                <div class="component">
+                    <h3>📁 scripts/c-c++/os_controlsystem.cpp</h3>
+                    <p><strong>Amaç:</strong> İşletim sistemi sertleştirme kontrolü ve doğrulaması</p>
+                    <p><strong>Özellikler:</strong> Config-driven, per-key result reporting</p>
+                    <p><strong>Komutlar:</strong></p>
+                    <ul>
+                        <li><code>--checks all</code> — Tüm kontrolleri çalıştır</li>
+                        <li><code>--config file.json</code> — Özel config dosyası kullan</li>
+                        <li><code>--report xml</code> — XML rapor çıkt</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Derleme ve Kurulum</h2>
+
+            <h3>Linux/macOS'ta Derleme</h3>
+            <pre><code>cd os_typing
+make build-c     # C/C++ modülleri derle
+make test-c      # C/C++ testleri çalıştır
+make clean       # Build dosyalarını temizle</code></pre>
+
+            <h3>Windows'ta Derleme (MSVC)</h3>
+            <pre><code>cd os_typing
+build.ps1        # PowerShell script'i çalıştır
+.\build\Debug\os_controlsystem.exe --checks all</code></pre>
+
+            <h3>GCC/Clang Seçenekleri</h3>
+            <pre><code>gcc -Wall -Wextra -std=c11 -O2 src/os_checking.c -o os_checking
+g++ -Wall -Wextra -std=c++17 scripts/c-c++/os_controlsystem.cpp -o os_controlsystem</code></pre>
+
+            <h2>API Referansı</h2>
+
+            <h3>os_checking.h</h3>
+            <pre><code class="language-c">/**
+ * İşletim sistemi türü enumeration
+ */
+typedef enum {
+    OS_UNKNOWN = 0,
+    OS_WINDOWS = 1,
+    OS_LINUX = 2,
+    OS_MACOS = 3
+} os_type_t;
+
+/**
+ * İşletim sistemi türünü döndür
+ * @return OS türü (os_type_t enum)
+ */
+int get_os_type(void);
+
+/**
+ * İşletim sistemi sürümü bilgisi
+ * @param buffer Sürüm string'i için buffer
+ * @param size Buffer boyutu
+ * @return Yazılan karakter sayısı
+ */
+int get_os_version(char *buffer, size_t size);</code></pre>
+
+            <h3>terminal.h</h3>
+            <pre><code class="language-c">/**
+ * Terminal REPL yapısı
+ */
+typedef struct {
+    char *prompt;
+    int running;
+    int (*command_handler)(const char *);
+} terminal_t;
+
+/**
+ * Terminal başlat
+ * @param term Terminal yapı işaretçisi
+ * @param prompt Kullanılacak prompt string'i
+ * @return Başarı durumu
+ */
+int terminal_init(terminal_t *term, const char *prompt);
+
+/**
+ * Terminal REPL döngüsünü çalıştır
+ * @param term Terminal yapı işaretçisi
+ * @return Terminal çıkış kodu
+ */
+int terminal_run(terminal_t *term);</code></pre>
+
+            <h2>Testler</h2>
+
+            <h3>Unit Testleri Çalıştırma</h3>
+            <pre><code># Tüm C/C++ testleri
+make test-c
+
+# Belirli bir test dosyasını çalıştır
+./tests/test_os_checking
+
+# Valgrind ile memory leak kontrolü
+valgrind --leak-check=full ./tests/test_os_checking</code></pre>
+
+            <h3>Test Dosyaları</h3>
+            <ul>
+                <li><code>tests/test_os_checking.c</code> — OS algılama testleri</li>
+                <li><code>tests/test_terminal.c</code> — Terminal REPL testleri</li>
+                <li><code>tests/test_os_controlsystem.cpp</code> — Kontrol sistemi testleri</li>
+            </ul>
+
+            <h2>Doxygen Dokümantasyonu</h2>
+
+            <p>Projenin C/C++ kaynak kodları Doxygen ile tam olarak dokümante edilmiştir:</p>
+
+            <ul class="next-steps">
+                <li>📚 <a href="api/html/index.html">Doxygen HTML Dokümantasyonu</a></li>
+                <li>📖 <a href="api/html/modules.html">Modüllere Genel Bakış</a></li>
+                <li>🔍 <a href="api/html/files.html">Dosyalar</a></li>
+                <li>📝 <a href="api/html/classes.html">Sınıflar ve Yapılar</a></li>
+            </ul>
+
+            <h2>Best Practices</h2>
+
+            <ul class="best-practices">
+                <li>🔒 Buffer overflow'dan korunmak için daima bounds checking yapın</li>
+                <li>🧹 Dinamik hafızayı her zaman serbest bırakın (memory leak'ler)</li>
+                <li>🔍 Tüm fonksiyonları test edin (unit + integration testleri)</li>
+                <li>📋 Doxygen stilinde yorumlar yazın (otomatik dokümantasyon)</li>
+                <li>⚠️ Platform-specific kodları `#ifdef` ile işaretleyin</li>
+                <li>📊 Valgrind ve sanitizer'ler kullanarak memory problemlerini bulun</li>
+            </ul>
+
+            <h2>İlgili Kaynaklar</h2>
+
+            <div class="related-links">
+                <ul>
+                    <li><a href="https://www.gnu.org/software/make/">GNU Make Rehberi</a></li>
+                    <li><a href="https://gcc.gnu.org/onlinedocs/">GCC Dokümantasyonu</a></li>
+                    <li><a href="https://clang.llvm.org/docs/">Clang Dokümantasyonu</a></li>
+                    <li><a href="https://www.doxygen.nl/manual/">Doxygen Manual</a></li>
+                    <li><a href="https://valgrind.org/info/manual.html">Valgrind Manual</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 32px; text-align: left;">
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">Rehber</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="index.html">Ana Sayfa</a></li>
+                        <li><a href="quickstart.html">Hızlı Başlangıç</a></li>
+                        <li><a href="deployment.html">Dağıtım</a></li>
+                        <li><a href="architecture.html">Mimari</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">Teknik Rehberler</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="c-cpp-guide.html">C/C++ Rehberi</a></li>
+                        <li><a href="python-guide.html">Python Rehberi</a></li>
+                        <li><a href="api/">API Docs</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 24px 0;">
+            <p>&copy; 2026 OS Typing Projesi. MIT Lisansı ile yayınlanmıştır.</p>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" title="Yukarı Git">↑</button>
+
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        document.querySelectorAll('pre').forEach(block => {
+            const container = document.createElement('div');
+            container.className = 'code-container';
+            
+            const button = document.createElement('button');
+            button.className = 'copy-button';
+            button.textContent = '📋 Kopyala';
+            
+            button.addEventListener('click', () => {
+                const code = block.querySelector('code') || block;
+                const text = code.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    button.textContent = '✓ Kopyalandı';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.textContent = '📋 Kopyala';
+                        button.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+            
+            block.parentNode.insertBefore(container, block);
+            container.appendChild(block);
+            container.appendChild(button);
+        });
+    </script>
+</body>
+</html>

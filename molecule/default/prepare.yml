@@ -1,0 +1,28 @@
+---
+# Prepare playbook - sets up test environment
+
+- name: Prepare test instances
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Update apt cache (Debian/Ubuntu)
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+      when: ansible_os_family in ['Debian']
+      become: true
+
+    - name: Install minimal dependencies
+      package:
+        name:
+          - python3
+          - python3-pip
+        state: present
+      become: true
+
+    - name: Ensure systemd is running
+      systemd:
+        state: started
+        daemon_reload: true
+      become: true
+      when: ansible_os_family in ['Debian']

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OS Typing Hızlı Başlangıç — 5 dakikada kurulum ve çalıştırma rehberi">
+    <meta name="keywords" content="hızlı başlangıç, kurulum, Ansible, playbook">
+    <meta property="og:title" content="Hızlı Başlangıç — OS Typing">
+    <meta property="og:description" content="5 dakikada kurulum ve çalıştırma rehberi">
+    <title>Hızlı Başlangıç — OS Typing</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <span class="logo">◆</span>
+                <span class="title">OS Typing</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Ana Sayfa</a></li>
+                <li><a href="quickstart.html" class="active">Hızlı Başlangıç</a></li>
+                <li><a href="deployment.html">Dağıtım</a></li>
+                <li><a href="c-cpp-guide.html">C/C++</a></li>
+                <li><a href="python-guide.html">Python3</a></li>
+                <li><a href="aspnet-guide.html">ASP.NET</a></li>
+                <li><a href="api/">API Docs</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="content">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Ana Sayfa</a>
+                <span class="separator">/</span>
+                <span class="active">Hızlı Başlangıç</span>
+            </div>
+
+            <h1>Hızlı Başlangıç (5 Dakika)</h1>
+            
+            <div class="alert alert-info">
+                <strong>Not:</strong> Bu rehber Linux/macOS için yazılmıştır. Windows için <a href="deployment.html#windows">dağıtım rehberini</a> görün.
+            </div>
+
+            <h2>Adım 1: Depoyu Klonu Oluştur</h2>
+            <pre><code>git clone https://github.com/yourusername/os_typing.git
+cd os_typing</code></pre>
+
+            <h2>Adım 2: Ön Koşulları Yükle</h2>
+            <pre><code># Linux (Ubuntu/Debian)
+sudo apt-get update
+sudo apt-get install -y python3 python3-pip build-essential
+
+# Ansible yükle
+pip3 install ansible
+
+# Molecule yükle (isteğe bağlı, lokal testing için)
+pip3 install molecule molecule-docker testinfra</code></pre>
+
+            <h2>Adım 3: Ansible Hardening'i Çalıştır</h2>
+            <pre><code># Inventory'yi düzenle
+nano inventory/hosts.ini
+
+# Playbook'u çalıştır (lokal makinede test için)
+ansible-playbook -i inventory/hosts.ini site.yml --limit localhost
+
+# Veya SSH üzerinden remote sunucuya:
+ansible-playbook -i inventory/hosts.ini site.yml</code></pre>
+
+            <h2>Adım 4: Sertleştirmeyi Doğrula</h2>
+            <pre><code># Sysctl değerlerini kontrol et
+sudo sysctl -a | grep -E "forwarding|redirects|log_martians"
+
+# Firewall durumunu kontrol et
+sudo ufw status
+
+# os_controlsystem aracını çalıştır
+./scripts/c-c++/os_controlsystem --checks all</code></pre>
+
+            <h2>Adım 5: Testleri Çalıştır</h2>
+            <pre><code># Linux hardening testleri (Testinfra)
+pip3 install pytest testinfra
+pytest tests/test_os_hardening.py -v
+
+# Ansible role'ü test et (Molecule)
+cd roles/os_hardening
+molecule test</code></pre>
+
+            <h2>Yaygın Sorunlar</h2>
+            
+            <div class="faq">
+                <div class="faq-item">
+                    <h3>❓ Ansible komutu bulunamıyor</h3>
+                    <p>
+                        <strong>Çözüm:</strong> Ansible'ı yükleyin:<br>
+                        <code>pip3 install --upgrade ansible</code>
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>❓ Sysctl: permission denied</h3>
+                    <p>
+                        <strong>Çözüm:</strong> Sudo kullanın:<br>
+                        <code>sudo sysctl -a | grep forwarding</code>
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>❓ UFW: command not found</h3>
+                    <p>
+                        <strong>Çözüm:</strong> UFW yükleyin (Debian/Ubuntu):<br>
+                        <code>sudo apt-get install ufw</code>
+                    </p>
+                </div>
+
+                <div class="faq-item">
+                    <h3>❓ Docker Molecule testinde başarısız</h3>
+                    <p>
+                        <strong>Çözüm:</strong> Docker daemon'ının çalıştığından emin olun:<br>
+                        <code>sudo service docker start</code>
+                    </p>
+                </div>
+            </div>
+
+            <h2>Sonraki Adımlar</h2>
+            <ul class="next-steps">
+                <li>📖 <a href="deployment.html">Dağıtım rehberini</a> oku (üretim kurulumu)</li>
+                <li>🏗️ <a href="architecture.html">Proje mimarisini</a> öğren</li>
+                <li>📚 <a href="api/">API dokümantasyonunu</a> incele</li>
+                <li>💬 GitHub'da <a href="https://github.com/yourusername/os_typing/issues">sorun bildir</a></li>
+                <li>🤝 <a href="https://github.com/yourusername/os_typing/pulls">pull request</a> gönder</li>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 32px; text-align: left;">
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">Rehber</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="index.html">Ana Sayfa</a></li>
+                        <li><a href="quickstart.html">Hızlı Başlangıç</a></li>
+                        <li><a href="deployment.html">Dağıtım</a></li>
+                        <li><a href="architecture.html">Mimari</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">Kaynaklar</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="api/">API Docs</a></li>
+                        <li><a href="https://github.com/yourusername/os_typing">GitHub</a></li>
+                        <li><a href="https://github.com/yourusername/os_typing/issues">Sorun Bildir</a></li>
+                        <li><a href="https://github.com/yourusername/os_typing/pulls">PR Gönder</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 24px 0;">
+            <p>&copy; 2026 OS Typing Projesi. MIT Lisansı ile yayınlanmıştır.</p>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" title="Yukarı Git">↑</button>
+
+    <script>
+        // Back to Top Button
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Copy to Clipboard for Code Blocks
+        document.querySelectorAll('pre').forEach(block => {
+            const container = document.createElement('div');
+            container.className = 'code-container';
+            
+            const button = document.createElement('button');
+            button.className = 'copy-button';
+            button.textContent = '📋 Kopyala';
+            
+            button.addEventListener('click', () => {
+                const code = block.querySelector('code') || block;
+                const text = code.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    button.textContent = '✓ Kopyalandı';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.textContent = '📋 Kopyala';
+                        button.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+            
+            block.parentNode.insertBefore(container, block);
+            container.appendChild(block);
+            container.appendChild(button);
+        });
+    </scriptn>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 OS Typing Projesi. <a href="https://github.com/yourusername/os_typing">GitHub'da Görüntüle</a></p>
+        </div>
+    </footer>
+</body>
+</html>

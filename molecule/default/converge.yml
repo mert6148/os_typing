@@ -1,0 +1,28 @@
+---
+# Converge playbook - applies os_hardening role
+
+- name: Converge - Apply os_hardening role
+  hosts: all
+  gather_facts: true
+  vars:
+    # Test variables - can override defaults
+    os_hardening_firewall_enabled: true
+    os_hardening_skip_sysctl: false
+    os_hardening_skip_firewall: false
+    os_hardening_skip_service: true  # Skip service in tests (not needed)
+  pre_tasks:
+    - name: Display test environment
+      debug:
+        msg: |
+          Testing os_hardening on {{ inventory_hostname }}
+          OS: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          Python: {{ ansible_python_version }}
+
+  roles:
+    - role: ../../roles/os_hardening
+      tags: [hardening]
+
+  post_tasks:
+    - name: Display hardening completion
+      debug:
+        msg: "os_hardening role applied successfully to {{ inventory_hostname }}"

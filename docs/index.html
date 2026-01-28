@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OS Typing — İşletim Sistemi Güvenliğini Sertleştirme ve Yazı Tipi Yönetimi Projesi">
+    <meta name="keywords" content="OS hardening, Ansible, Linux, Windows, güvenlik, sertleştirme, CI/CD">
+    <meta name="author" content="OS Typing Contributors">
+    <meta property="og:title" content="OS Typing — Proje Rehberi">
+    <meta property="og:description" content="İşletim Sistemi Güvenliğini Sertleştirme ve Yazı Tipi Yönetimi">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourusername.github.io/os_typing/">
+    <meta property="og:image" content="https://yourusername.github.io/os_typing/assets/og-image.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#4CAF50">
+    <title>OS Typing — Proje Rehberi</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75' font-weight='bold' fill='%234CAF50'>◆</text></svg>">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <span class="logo">◆</span>
+                <span class="title">OS Typing</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="active">Ana Sayfa</a></li>
+                <li><a href="quickstart.html">Hızlı Başlangıç</a></li>
+                <li><a href="deployment.html">Dağıtım</a></li>
+                <li><a href="c-cpp-guide.html">C/C++</a></li>
+                <li><a href="python-guide.html">Python3</a></li>
+                <li><a href="aspnet-guide.html">ASP.NET</a></li>
+                <li><a href="api/">API Docs</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container">
+            <h1>OS Typing</h1>
+            <p class="subtitle">İşletim Sistemi Güvenliğini Sertleştirme ve Yazı Tipi Yönetimi</p>
+            <div class="cta-buttons">
+                <a href="quickstart.html" class="btn btn-primary">Başla</a>
+                <a href="deployment.html" class="btn btn-secondary">Dağıtım Rehberi</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <h2>Özellikler</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>OS Sertleştirme</h3>
+                    <p>Linux ve Windows için otomatik güvenlik sertleştirme. Sysctl parametreleri, firewall kuralları, hizmet konfigürasyonu.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧪</div>
+                    <h3>Kapsamlı Testler</h3>
+                    <p>Testinfra, Pester, Molecule ile sertleştirme doğrulaması. CI/CD entegrasyonu, JUnit raporlar.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <h3>Ansible Otomasyonu</h3>
+                    <p>Idempotent Ansible role'leri, playbook'lar, inventory template'leri. Linux ve Windows desteği.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>CI/CD Pipeline</h3>
+                    <p>GitHub Actions, PHP lint, Python testleri, Ansible lint. Otomatik doğrulama ve raporlama.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>Otomatik Docs</h3>
+                    <p>Doxygen API dokümantasyonu, GitHub Pages, C/C++/Python kaynak kodu açıklamaları.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3>PHP Demo UI</h3>
+                    <p>Güvenli PHP arayüzü, CSRF token'ları, parameterized query'ler, session yönetimi.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="getting-started">
+        <div class="container">
+            <h2>Hızlı Başlangıç</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Klonu Oluştur</h3>
+                    <pre><code>git clone https://github.com/yourusername/os_typing.git
+cd os_typing</code></pre>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>Ansible Çalıştır</h3>
+                    <pre><code>ansible-playbook -i inventory/hosts.ini site.yml</code></pre>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Testleri Doğrula</h3>
+                    <pre><code>pytest tests/test_os_hardening.py
+pester tests/windows/HardeningTests.ps1</code></pre>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Depoyla Katkı</h3>
+                    <pre><code>git checkout -b feature/my-enhancement
+# Yapın değişiklikleri, test edin
+git push origin feature/my-enhancement</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="components">
+        <div class="container">
+            <h2>Proje Bileşenleri</h2>
+            <div class="components-list">
+                <div class="component">
+                    <h3>📁 C/C++ Modülleri</h3>
+                    <ul>
+                        <li><strong>os_checking</strong> — OS detection (Windows, Linux, macOS)</li>
+                        <li><strong>terminal</strong> — REPL framework</li>
+                        <li><strong>os_controlsystem</strong> — Hardening control utility</li>
+                    </ul>
+                </div>
+                <div class="component">
+                    <h3>🐍 Python Araçları</h3>
+                    <ul>
+                        <li><strong>os_controlsystem_to_junit.py</strong> — JUnit report generation</li>
+                        <li><strong>tests/test_os_hardening.py</strong> — Testinfra hardening tests</li>
+                    </ul>
+                </div>
+                <div class="component">
+                    <h3>🔧 Ansible Otomasyonu</h3>
+                    <ul>
+                        <li><strong>roles/os_hardening</strong> — Linux/Windows hardening role</li>
+                        <li><strong>site.yml</strong> — Main playbook</li>
+                        <li><strong>molecule/</strong> — Role testing framework</li>
+                    </ul>
+                </div>
+                <div class="component">
+                    <h3>🌐 PHP Uygulaması</h3>
+                    <ul>
+                        <li><strong>index.php</strong> — Secure demo UI</li>
+                        <li><strong>db_security.php</strong> — Database security helpers</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="documentation">
+        <div class="container">
+            <h2>Dokümantasyon</h2>
+            <div class="docs-grid">
+                <a href="quickstart.html" class="doc-card">
+                    <h3>🚀 Hızlı Başlangıç</h3>
+                    <p>5 dakikada kurulum ve çalıştırma rehberi</p>
+                </a>
+                <a href="deployment.html" class="doc-card">
+                    <h3>📦 Dağıtım Rehberi</h3>
+                    <p>Üretim ortamında deploy etme adımları</p>
+                </a>
+                <a href="c-cpp-guide.html" class="doc-card">
+                    <h3>🔧 C/C++ Modülleri</h3>
+                    <p>OS detection, terminal REPL, hardening control</p>
+                </a>
+                <a href="python-guide.html" class="doc-card">
+                    <h3>🐍 Python3 Araçları</h3>
+                    <p>Testinfra, Molecule, JUnit converter</p>
+                </a>
+                <a href="aspnet-guide.html" class="doc-card">
+                    <h3>🌐 ASP.NET Konfigürasyonu</h3>
+                    <p>Entity Framework, Dependency Injection, Middleware</p>
+                </a>
+                <a href="architecture.html" class="doc-card">
+                    <h3>🏗️ Mimari Tasarım</h3>
+                    <p>Proje yapısı ve bileşen ilişkileri</p>
+                </a>
+                <a href="api/" class="doc-card">
+                    <h3>📚 API Referansı</h3>
+                    <p>Doxygen otomatik API dokümantasyonu</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 32px; text-align: left;">
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">Rehber</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="index.html">Ana Sayfa</a></li>
+                        <li><a href="quickstart.html">Hızlı Başlangıç</a></li>
+                        <li><a href="deployment.html">Dağıtım</a></li>
+                        <li><a href="architecture.html">Mimari</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">Kaynaklar</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="api/">API Docs</a></li>
+                        <li><a href="https://github.com/yourusername/os_typing">GitHub</a></li>
+                        <li><a href="https://github.com/yourusername/os_typing/issues">Sorun Bildir</a></li>
+                        <li><a href="https://github.com/yourusername/os_typing/pulls">PR Gönder</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">İletişim</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="https://github.com/yourusername">GitHub Profili</a></li>
+                        <li><a href="https://twitter.com/yourusername">Twitter</a></li>
+                        <li><a href="mailto:your.email@example.com">E-posta</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 24px 0;">
+            <p style="margin-bottom: 8px;">&copy; 2026 OS Typing Projesi. MIT Lisansı ile yayınlanmıştır.</p>
+            <p class="footer-links">
+                <a href="#" onclick="document.documentElement.scrollTop = 0; return false;" title="Yukarı Git">⬆ Yukarı Git</a> • 
+                <a href="https://github.com/yourusername/os_typing/blob/main/LICENSE">Lisans</a> • 
+                <a href="https://github.com/yourusername/os_typing/blob/main/SECURITY.md">Güvenlik</a> •
+                <a href="https://github.com/yourusername/os_typing/blob/main/CONTRIBUTING.md">Katkı Rehberi</a>
+            </p>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" title="Yukarı Git">↑</button>
+
+    <script>
+        // Back to Top Button
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // Copy to Clipboard for Code Blocks
+        document.querySelectorAll('pre').forEach(block => {
+            const container = document.createElement('div');
+            container.className = 'code-container';
+            
+            const button = document.createElement('button');
+            button.className = 'copy-button';
+            button.textContent = '📋 Kopyala';
+            
+            button.addEventListener('click', () => {
+                const code = block.querySelector('code') || block;
+                const text = code.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    button.textContent = '✓ Kopyalandı';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.textContent = '📋 Kopyala';
+                        button.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+            
+            block.parentNode.insertBefore(container, block);
+            container.appendChild(block);
+            container.appendChild(button);
+        });
+
+        // Dark Mode Toggle
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark) {
+            document.documentElement.style.colorScheme = 'dark';
+        }
+    </script>
+</body>
+</html>

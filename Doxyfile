@@ -1,0 +1,74 @@
+# Doxygen configuration for OS Typing project
+# Generated for C/C++/Python documentation generation
+# 
+# GitHub Pages deployment: docs/html/ is automatically published via CI workflow
+
+PROJECT_NAME           = "OS Typing"
+PROJECT_NUMBER         = 1.0
+PROJECT_BRIEF          = "OS security hardening, typing, and database security demo"
+
+OUTPUT_DIRECTORY       = docs/
+CREATE_SUBDIRS         = YES
+OUTPUT_LANGUAGE        = English
+
+# Input files and directories
+INPUT                  = src/ scripts/c-c++/ scripts/tests/
+INPUT_ENCODING         = UTF-8
+
+# File patterns
+FILE_PATTERNS          = *.c *.cpp *.h *.py
+RECURSIVE              = YES
+
+# Exclude patterns
+EXCLUDE_PATTERNS       = */vendor/* */node_modules/* */.git/* */__pycache__/*
+EXCLUDE_SYMBOLS        = 
+
+# C/C++ specific
+ENABLE_PREPROCESSING   = YES
+MACRO_EXPANSION        = YES
+EXPAND_ONLY_PREDEF     = NO
+SEARCH_INCLUDES        = YES
+
+# Python support
+FILTER_PATTERNS        = "*.py=python_filter.sh"
+
+# Output formats (HTML for GitHub Pages)
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+HTML_FILE_EXTENSION    = .html
+HTML_EXTRA_STYLESHEET  = 
+GENERATE_LATEX         = NO
+
+# Documentation options
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_ANON_NSPACES   = YES
+
+# Source browsing
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = NO
+
+# Relationships
+CLASS_DIAGRAMS         = YES
+HAVE_DOT               = YES
+DOT_IMAGE_FORMAT       = svg
+INTERACTIVE_SVG        = YES
+
+# Search functionality
+SEARCHENGINE           = YES
+SERVER_BASED_SEARCH    = NO
+
+# External references
+TAGFILES               = 
+GENERATE_TAGFILE       = docs/os_typing.tags
+
+# Warnings
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_LACKED     = YES
+WARN_NO_PARAMDOC       = YES
+
+# Quiet mode (for CI)
+QUIET                  = NO

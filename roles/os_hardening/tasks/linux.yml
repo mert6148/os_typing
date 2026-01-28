@@ -1,0 +1,86 @@
+---
+# Linux-specific hardening tasks
+
+- name: Update package cache
+  apt:
+    update_cache: true
+    cache_valid_time: 3600
+  become: true
+  when: ansible_pkg_mgr == 'apt'
+  tags: [linux, packages]
+
+- name: Ensure UFW is installed (Debian/Ubuntu)
+  apt:
+    name: ufw
+    state: present
+  become: true
+  when: ansible_pkg_mgr == 'apt' and not os_hardening_skip_firewall
+  tags: [linux, firewall]
+
+- name: Configure sysctl parameters
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_set: true
+    state: present
+  become: true
+  with_dict: "{{ os_hardening_sysctl_config }}"
+  notify: reload sysctl
+  when: not os_hardening_skip_sysctl
+  tags: [linux, sysctl]
+
+- name: Enable UFW
+  ufw:
+    state: enabled
+    policy: "{{ os_hardening_firewall_default_policy }}"
+  become: true
+  when: os_hardening_firewall_enabled and not os_hardening_skip_firewall
+  tags: [linux, firewall]
+
+- name: Configure UFW rules
+  ufw:
+    rule: allow
+    port: "{{ item.port | string }}"
+    proto: "{{ item.proto }}"
+    comment: "{{ item.comment }}"
+  become: true
+  with_items: "{{ os_hardening_firewall_allowed_ports }}"
+  when: os_hardening_firewall_enabled and not os_hardening_skip_firewall
+  tags: [linux, firewall]
+
+- name: Deploy systemd service unit
+  template:
+    src: os_typing.service.j2
+    dest: "/etc/systemd/system/{{ os_hardening_service_name }}.service"
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify: reload systemd daemon
+  when: not os_hardening_skip_service
+  tags: [linux, service]
+
+- name: Create service user
+  user:
+    name: "{{ os_hardening_service_user }}"
+    group: "{{ os_hardening_service_group }}"
+    home: /var/lib/{{ os_hardening_service_name }}
+    shell: /usr/sbin/nologin
+    state: present
+  become: true
+  when: not os_hardening_skip_service
+  tags: [linux, service]
+
+- name: Enable and start os_typing service
+  systemd:
+    name: "{{ os_hardening_service_name }}"
+    enabled: true
+    state: started
+  become: true
+  when: not os_hardening_skip_service
+  tags: [linux, service]
+
+- name: Display Linux hardening applied
+  debug:
+    msg: "Linux hardening applied to {{ ansible_hostname }}"
+  tags: [linux, always]

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OS Typing ASP.NET Konfigürasyonu — Entity Framework, Dependency Injection, Middleware">
+    <meta name="keywords" content="ASP.NET, C#, Entity Framework, konfigürasyon, middleware">
+    <meta property="og:title" content="ASP.NET Konfigürasyonu — OS Typing">
+    <meta property="og:description" content="Web uygulaması kurulum ve yapılandırma rehberi">
+    <title>ASP.NET Konfigürasyonu — OS Typing</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <span class="logo">◆</span>
+                <span class="title">OS Typing</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Ana Sayfa</a></li>
+                <li><a href="quickstart.html">Hızlı Başlangıç</a></li>
+                <li><a href="c-cpp-guide.html">C/C++</a></li>
+                <li><a href="python-guide.html">Python3</a></li>
+                <li><a href="aspnet-guide.html" class="active">ASP.NET</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="content">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Ana Sayfa</a>
+                <span class="separator">/</span>
+                <span class="active">ASP.NET Konfigürasyonu</span>
+            </div>
+
+            <h1>ASP.NET Konfigürasyonu Rehberi</h1>
+
+            <div class="alert alert-info">
+                <strong>Not:</strong> Bu rehber ASP.NET 6+ ve Entity Framework Core 6+ için yazılmıştır.
+            </div>
+
+            <h2>Proje Kurulumu</h2>
+
+            <h3>Yeni Proje Oluştur</h3>
+            <pre><code># Web API projesi oluştur
+dotnet new webapi -n OsTypingApi
+cd OsTypingApi
+
+# Veya MVC projesi
+dotnet new mvc -n OsTypingWeb
+
+# NuGet paketlerini geri yükle
+dotnet restore</code></pre>
+
+            <h2>appsettings.json Konfigürasyonu</h2>
+
+            <h3>Temel Yapılandırma</h3>
+            <pre><code class="language-json">{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    },
+    "Console": {
+      "IncludeScopes": true
+    }
+  },
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=OsTyping;User=sa;Password=YourPassword;"
+  },
+  "AllowedHosts": "*",
+  "Security": {
+    "CorsPolicies": {
+      "AllowedOrigins": ["http://localhost:3000", "https://yourdomain.com"],
+      "AllowedMethods": ["GET", "POST", "PUT", "DELETE"],
+      "AllowedHeaders": ["*"]
+    },
+    "Jwt": {
+      "Key": "your-secret-key-min-32-characters-long",
+      "Issuer": "OsTypingApp",
+      "Audience": "OsTypingUsers",
+      "ExpirationMinutes": 60
+    }
+  },
+  "Features": {
+    "EnableSwagger": true,
+    "EnableMetrics": true,
+    "CacheDuration": 300
+  }
+}</code></pre>
+
+            <h2>Program.cs Yapılandırması</h2>
+
+            <h3>Servis Kayıt Etme</h3>
+            <pre><code class="language-csharp">using Microsoft.EntityFrameworkCore;
+using OsTyping.Data;
+using OsTyping.Services;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add DbContext
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
+// Add Controllers and Swagger
+builder.Services.AddControllers();
+builder.Services.AddSwaggerGen();
+
+// Register services (Dependency Injection)
+builder.Services.AddScoped<IHardeningService, HardeningService>();
+builder.Services.AddScoped<IOsCheckService, OsCheckService>();
+builder.Services.AddSingleton<ICacheService, MemoryCacheService>();
+
+var app = builder.Build();
+
+// Middleware
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.UseCors("AllowSpecificOrigins");
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
+app.Run();</code></pre>
+
+            <h2>Entity Framework Konfigürasyonu</h2>
+
+            <h3>DbContext Oluştur</h3>
+            <pre><code class="language-csharp">using Microsoft.EntityFrameworkCore;
+using OsTyping.Models;
+
+namespace OsTyping.Data
+{
+    public class ApplicationDbContext : DbContext
+    {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
+            : base(options) { }
+
+        public DbSet<HardeningCheck> HardeningChecks { get; set; }
+        public DbSet<SystemMetric> SystemMetrics { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Configure HardeningCheck
+            modelBuilder.Entity<HardeningCheck>()
+                .HasKey(h => h.Id);
+            
+            modelBuilder.Entity<HardeningCheck>()
+                .Property(h => h.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+
+            // Configure indexes
+            modelBuilder.Entity<AuditLog>()
+                .HasIndex(a => a.Timestamp)
+                .IsDescending();
+
+            modelBuilder.Entity<HardeningCheck>()
+                .HasIndex(h => h.SystemId);
+        }
+    }
+}</code></pre>
+
+            <h3>Migration'ları Çalıştır</h3>
+            <pre><code># Initial migration oluştur
+dotnet ef migrations add InitialCreate
+
+# Database'i güncelle
+dotnet ef database update
+
+# Migration'ları kontrol et
+dotnet ef migrations list</code></pre>
+
+            <h2>Dependency Injection (DI)</h2>
+
+            <h3>Servis İnterfacelerini Tanımla</h3>
+            <pre><code class="language-csharp">// Services/IHardeningService.cs
+public interface IHardeningService
+{
+    Task<HardeningCheckDto> GetCheckAsync(int id);
+    Task<List<HardeningCheckDto>> GetAllChecksAsync();
+    Task<HardeningCheckDto> CreateCheckAsync(CreateCheckDto dto);
+    Task UpdateCheckAsync(int id, UpdateCheckDto dto);
+    Task DeleteCheckAsync(int id);
+}
+
+// Services/HardeningService.cs
+public class HardeningService : IHardeningService
+{
+    private readonly IHardeningRepository _repository;
+    private readonly ILogger<HardeningService> _logger;
+
+    public HardeningService(IHardeningRepository repository, 
+                           ILogger<HardeningService> logger)
+    {
+        _repository = repository;
+        _logger = logger;
+    }
+
+    public async Task<HardeningCheckDto> GetCheckAsync(int id)
+    {
+        _logger.LogInformation("Fetching hardening check {Id}", id);
+        var check = await _repository.GetByIdAsync(id);
+        return check == null ? null : MapToDto(check);
+    }
+}</code></pre>
+
+            <h2>Middleware Yapılandırması</h2>
+
+            <h3>Hata Yönetimi Middleware'i</h3>
+            <pre><code class="language-csharp">public class ExceptionHandlingMiddleware
+{
+    private readonly RequestDelegate _next;
+    private readonly ILogger<ExceptionHandlingMiddleware> _logger;
+
+    public ExceptionHandlingMiddleware(RequestDelegate next, 
+                                       ILogger<ExceptionHandlingMiddleware> logger)
+    {
+        _next = next;
+        _logger = logger;
+    }
+
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
+        {
+            await _next(context);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unhandled exception occurred");
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            
+            await context.Response.WriteAsJsonAsync(new { 
+                error = "Internal server error",
+                message = ex.Message 
+            });
+        }
+    }
+}</code></pre>
+
+            <h2>Kimlik Doğrulama & Yetkilendirme</h2>
+
+            <h3>JWT Konfigürasyonu</h3>
+            <pre><code class="language-csharp">// Program.cs
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                builder.Configuration["Security:Jwt:Key"])),
+            ValidateIssuer = true,
+            ValidIssuer = builder.Configuration["Security:Jwt:Issuer"],
+            ValidateAudience = true,
+            ValidAudience = builder.Configuration["Security:Jwt:Audience"],
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+// Yetkilendirme politikaları
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireClaim(ClaimTypes.Role, "Admin"));
+    
+    options.AddPolicy("HardeningRead", policy =>
+        policy.RequireClaim("Permission", "hardening:read"));
+});</code></pre>
+
+            <h2>Test Yapılandırması (xUnit)</h2>
+
+            <h3>Temel Test Örneği</h3>
+            <pre><code class="language-csharp">using Xunit;
+using Moq;
+using OsTyping.Services;
+
+public class HardeningServiceTests
+{
+    private readonly Mock<IHardeningRepository> _mockRepository;
+    private readonly HardeningService _service;
+
+    public HardeningServiceTests()
+    {
+        _mockRepository = new Mock<IHardeningRepository>();
+        _service = new HardeningService(_mockRepository.Object, 
+                                       new Mock<ILogger<HardeningService>>().Object);
+    }
+
+    [Fact]
+    public async Task GetCheck_WithValidId_ReturnsCheck()
+    {
+        // Arrange
+        var checkId = 1;
+        var expectedCheck = new HardeningCheck { Id = checkId, Name = "Test" };
+        _mockRepository.Setup(r => r.GetByIdAsync(checkId))
+            .ReturnsAsync(expectedCheck);
+
+        // Act
+        var result = await _service.GetCheckAsync(checkId);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(checkId, result.Id);
+        _mockRepository.Verify(r => r.GetByIdAsync(checkId), Times.Once);
+    }
+}</code></pre>
+
+            <h2>Derleme ve Çalıştırma</h2>
+
+            <h3>Development Ortamında Çalıştır</h3>
+            <pre><code># Derleme
+dotnet build
+
+# Çalıştırma
+dotnet run
+
+# Watch modu (otomatik reload)
+dotnet watch run
+
+# Release derleme
+dotnet build -c Release</code></pre>
+
+            <h2>Best Practices</h2>
+
+            <ul class="best-practices">
+                <li>🔐 Gizli anahtarları appsettings.json'dan değil, ortam değişkenlerinden oku</li>
+                <li>🧩 Dependency Injection kullanarak bağımlılıkları loose yapalı</li>
+                <li>📝 DbContext'i using statement'ı veya DI ile yönet</li>
+                <li>🔍 Güvenlik açıkları için input validation ve output encoding yap</li>
+                <li>📊 Loggingayı düzgün configure et (çok ayrıntılı olma, yeterli olma)</li>
+                <li>🧪 Unit testleri Mock/Moq ile yaz</li>
+                <li>🚀 CORS politikasını production'da sıkı tutmak</li>
+                <li>⚡ Response compression'ı enable et</li>
+            </ul>
+
+            <h2>İlgili Kaynaklar</h2>
+
+            <div class="related-links">
+                <ul>
+                    <li><a href="https://docs.microsoft.com/en-us/aspnet/core/">ASP.NET Core Dokümantasyonu</a></li>
+                    <li><a href="https://docs.microsoft.com/en-us/ef/core/">Entity Framework Core Rehberi</a></li>
+                    <li><a href="https://xunit.net/docs/getting-started/netcore">xUnit Test Framework</a></li>
+                    <li><a href="https://github.com/Moq/moq4">Moq Mocking Library</a></li>
+                    <li><a href="https://swagger.io/">OpenAPI/Swagger Specification</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 32px; text-align: left;">
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">Rehber</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="index.html">Ana Sayfa</a></li>
+                        <li><a href="quickstart.html">Hızlı Başlangıç</a></li>
+                        <li><a href="deployment.html">Dağıtım</a></li>
+                        <li><a href="architecture.html">Mimari</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">Teknik Rehberler</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="c-cpp-guide.html">C/C++ Rehberi</a></li>
+                        <li><a href="python-guide.html">Python3 Rehberi</a></li>
+                        <li><a href="aspnet-guide.html">ASP.NET Rehberi</a></li>
+                        <li><a href="api/">API Docs</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 24px 0;">
+            <p>&copy; 2026 OS Typing Projesi. MIT Lisansı ile yayınlanmıştır.</p>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" title="Yukarı Git">↑</button>
+
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        document.querySelectorAll('pre').forEach(block => {
+            const container = document.createElement('div');
+            container.className = 'code-container';
+            
+            const button = document.createElement('button');
+            button.className = 'copy-button';
+            button.textContent = '📋 Kopyala';
+            
+            button.addEventListener('click', () => {
+                const code = block.querySelector('code') || block;
+                const text = code.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    button.textContent = '✓ Kopyalandı';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.textContent = '📋 Kopyala';
+                        button.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+            
+            block.parentNode.insertBefore(container, block);
+            container.appendChild(block);
+            container.appendChild(button);
+        });
+    </script>
+</body>
+</html>

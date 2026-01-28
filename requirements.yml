@@ -1,0 +1,13 @@
+---
+# Ansible Galaxy requirements for os_typing project
+# Used by Molecule and local playbook execution
+
+collections:
+  # Core community collections
+  - name: community.general
+    version: ">=5.0.0"
+
+  - name: ansible.posix
+    version: ">=1.3.0"
+
+# Note: Ansible built-in modules (package, service, etc.) don't require explicit roles

@@ -1,0 +1,35 @@
+---
+# Windows-specific hardening tasks
+
+- name: Enable Windows Firewall (if enabled)
+  win_shell: |
+    Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True
+  when: os_hardening_windows_firewall
+  tags: [windows, firewall]
+
+- name: Disable SMB v1 (if enabled)
+  win_shell: |
+    Disable-WindowsOptionalFeature -FeatureName SMB1Protocol -Online -NoRestart
+  when: os_hardening_windows_disable_smb_v1
+  ignore_errors: true
+  tags: [windows, security]
+
+- name: Ensure Windows Defender is enabled (if enabled)
+  win_shell: |
+    Set-MpPreference -DisableRealtimeMonitoring $false
+  when: os_hardening_windows_defender_enabled
+  tags: [windows, security]
+
+- name: Configure Windows Firewall inbound rules
+  win_shell: |
+    # Allow SSH if present
+    New-NetFirewallRule -DisplayName "SSH" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 22 -ErrorAction SilentlyContinue
+    # Allow OS Typing service port
+    New-NetFirewallRule -DisplayName "OS Typing" -Direction Inbound -Action Allow -Protocol TCP -LocalPort 12345 -ErrorAction SilentlyContinue
+  when: os_hardening_windows_firewall
+  tags: [windows, firewall]
+
+- name: Display Windows hardening applied
+  debug:
+    msg: "Windows hardening applied to {{ ansible_hostname }}"
+  tags: [windows, always]

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="OS Typing Python Araçları — JUnit converter, Testinfra, Molecule testleri">
+    <meta name="keywords" content="Python, testler, Testinfra, Molecule, JUnit">
+    <meta property="og:title" content="Python Araçları — OS Typing">
+    <meta property="og:description" content="Test frameworkleri ve dönüştürme araçları">
+    <title>Python Araçları — OS Typing</title>
+    <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <span class="logo">◆</span>
+                <span class="title">OS Typing</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Ana Sayfa</a></li>
+                <li><a href="quickstart.html">Hızlı Başlangıç</a></li>
+                <li><a href="deployment.html">Dağıtım</a></li>
+                <li><a href="c-cpp-guide.html">C/C++</a></li>
+                <li><a href="python-guide.html" class="active">Python3</a></li>
+                <li><a href="aspnet-guide.html">ASP.NET</a></li>
+                <li><a href="api/">API Docs</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="content">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="index.html">Ana Sayfa</a>
+                <span class="separator">/</span>
+                <span class="active">Python Araçları</span>
+            </div>
+
+            <h1>Python Araçları Rehberi</h1>
+
+            <div class="alert alert-info">
+                <strong>Bilgi:</strong> Tüm Python modülleri docstring'ler ile dokümante edilmiştir. <code>pydoc</code> veya <code>help()</code> kullanarak inceleyebilirsiniz.
+            </div>
+
+            <h2>Python Bileşenlerine Genel Bakış</h2>
+
+            <div class="components-list">
+                <div class="component">
+                    <h3>🔧 scripts/tests/os_controlsystem_to_junit.py</h3>
+                    <p><strong>Amaç:</strong> os_controlsystem log çıktısını JUnit XML'e dönüştür</p>
+                    <p><strong>Giriş:</strong> JSON veya plain text log dosyası</p>
+                    <p><strong>Çıktı:</strong> JUnit-compatible XML raporu</p>
+                    <p><strong>Kullanım:</strong></p>
+                    <ul>
+                        <li><code>python3 os_controlsystem_to_junit.py input.log</code></li>
+                        <li><code>python3 os_controlsystem_to_junit.py --format json input.json</code></li>
+                        <li><code>python3 os_controlsystem_to_junit.py --output report.xml input.log</code></li>
+                    </ul>
+                </div>
+
+                <div class="component">
+                    <h3>🧪 tests/test_os_hardening.py</h3>
+                    <p><strong>Framework:</strong> Pytest + Testinfra</p>
+                    <p><strong>Amaç:</strong> Linux sistem sertleştirmesini doğrula</p>
+                    <p><strong>Testler:</strong> Sysctl, UFW, selinux, kernel params</p>
+                    <p><strong>Kullanım:</strong></p>
+                    <ul>
+                        <li><code>pytest tests/test_os_hardening.py -v</code></li>
+                        <li><code>pytest tests/test_os_hardening.py::test_sysctl</code></li>
+                        <li><code>pytest tests/test_os_hardening.py --junitxml=report.xml</code></li>
+                    </ul>
+                </div>
+
+                <div class="component">
+                    <h3>🧬 molecule/default/tests/test_default.py</h3>
+                    <p><strong>Framework:</strong> Pytest + Testinfra + Molecule</p>
+                    <p><strong>Amaç:</strong> Ansible role'ünü Docker'da test et</p>
+                    <p><strong>Testler:</strong> 13 Testinfra assertion</p>
+                    <p><strong>Kullanım:</strong></p>
+                    <ul>
+                        <li><code>cd roles/os_hardening && molecule test</code></li>
+                        <li><code>molecule converge</code> (deploy only)</li>
+                        <li><code>molecule verify</code> (test only)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h2>Ortam Kurulumu</h2>
+
+            <h3>Python Versiyonu Gereksinimleri</h3>
+            <pre><code>Python 3.8+
+pip 20.0+
+virtualenv (önerilir)</code></pre>
+
+            <h3>Sanal Ortam Oluştur</h3>
+            <pre><code>python3 -m venv venv
+source venv/bin/activate       # Linux/macOS
+.\venv\Scripts\activate.ps1    # Windows</code></pre>
+
+            <h3>Bağımlılıkları Yükle</h3>
+            <pre><code># Temel testler
+pip install pytest testinfra
+
+# Molecule ve Docker
+pip install molecule molecule-docker
+
+# Ansible support
+pip install ansible
+
+# Linting ve formatting
+pip install pylint flake8 black</code></pre>
+
+            <h2>Testinfra Testleri</h2>
+
+            <h3>test_os_hardening.py Yapısı</h3>
+            <pre><code class="language-python">import pytest
+from testinfra import get_host
+
+@pytest.fixture
+def host():
+    """Test edilecek host'u döndür"""
+    return get_host("local://")
+
+def test_sysctl_forwarding(host):
+    """IP forwarding kapalı mı?"""
+    result = host.sysctl("net.ipv4.ip_forward")
+    assert result == 0, "IP forwarding kapalı olmalı"
+
+def test_ufw_status(host):
+    """UFW etkin mi?"""
+    ufw = host.run("ufw status")
+    assert "Status: active" in ufw.stdout
+
+def test_selinux_enforcing(host):
+    """SELinux enforcing modda mı?"""
+    selinux = host.file("/etc/selinux/config")
+    assert "SELINUX=enforcing" in selinux.content</code></pre>
+
+            <h3>Testinfra Built-in Modules</h3>
+            <ul>
+                <li><code>host.file()</code> — Dosya kontrolleri</li>
+                <li><code>host.socket()</code> — Network socket testleri</li>
+                <li><code>host.package()</code> — Paket yükleme kontrolü</li>
+                <li><code>host.service()</code> — Hizmet durumu kontrolü</li>
+                <li><code>host.run()</code> — Komut çalıştırma ve çıktı parse etme</li>
+                <li><code>host.sysctl()</code> — Kernel parametreleri</li>
+                <li><code>host.user()</code> — Kullanıcı ve izinler</li>
+            </ul>
+
+            <h2>JUnit Dönüştürücü</h2>
+
+            <h3>Kullanım Örnekleri</h3>
+            <pre><code># Basit dönüştürme
+python3 os_controlsystem_to_junit.py checks.log
+
+# JSON formatından
+python3 os_controlsystem_to_junit.py \
+    --format json \
+    --output report.xml \
+    checks.json
+
+# Özel test suite adı
+python3 os_controlsystem_to_junit.py \
+    --suite-name "OS Control Hardening" \
+    checks.log</code></pre>
+
+            <h3>Çıktı Formatı</h3>
+            <pre><code class="language-xml"><?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="os_controlsystem" tests="10" failures="0" errors="0">
+    <testcase name="sysctl_forwarding" classname="system.hardening">
+      <system-out>net.ipv4.ip_forward = 0 (expected 0)</system-out>
+    </testcase>
+    <testcase name="firewall_status" classname="system.network">
+      <system-out>UFW Status: active</system-out>
+    </testcase>
+  </testsuite>
+</testsuites></code></pre>
+
+            <h2>Molecule Test Senaryoları</h2>
+
+            <h3>Scenario Yapısı</h3>
+            <pre><code>molecule/default/
+├── molecule.yml      # Test konfigürasyonu
+├── converge.yml      # Role'ü deploy et
+├── verify.yml        # Post-deployment testler
+├── tests/
+│   └── test_default.py  # Testinfra assertions
+└── create.yml        # Container oluştur</code></pre>
+
+            <h3>Aşama Açıklaması</h3>
+            <pre><code># 1. Create — Container'ları başlat
+molecule create
+
+# 2. Converge — Ansible role'ünü uygula
+molecule converge
+
+# 3. Verify — Testinfra testleri çalıştır
+molecule verify
+
+# 4. Destroy — Container'ları kaldır
+molecule destroy
+
+# Veya hepsini bir komutla
+molecule test</code></pre>
+
+            <h2>Best Practices</h2>
+
+            <ul class="best-practices">
+                <li>✅ Tüm testleri sanal ortamda çalıştırın (tox kullanın)</li>
+                <li>📊 Test coverage'ı %80+ tutmaya çalışın</li>
+                <li>🔍 Integration testleriyle unit testleri kombine edin</li>
+                <li>📝 Test docstring'leri yazın (ne test edildiği açık olsun)</li>
+                <li>🎯 Hata mesajlarını açık ve net tutun</li>
+                <li>🚀 CI/CD'de testleri parallel çalıştırın (hız için)</li>
+                <li>🐳 Molecule Docker container'larında test edin (izolasyon)</li>
+                <li>📋 Fixture'lar ile test tekrarını azaltın</li>
+            </ul>
+
+            <h2>Debugging</h2>
+
+            <h3>Verbose Output</h3>
+            <pre><code># Pytest verbose mode
+pytest -vv tests/test_os_hardening.py
+
+# Stdout/stderr göster
+pytest -s tests/test_os_hardening.py
+
+# Başarısız testler için detailed info
+pytest --tb=long tests/test_os_hardening.py</code></pre>
+
+            <h3>Molecule Debugging</h3>
+            <pre><code># Container'da interactive shell
+molecule login
+
+# Terraform/Docker output'unu göster
+molecule --debug test
+
+# Specific scenario'yu test et
+molecule test -s scenario_name</code></pre>
+
+            <h2>İlgili Kaynaklar</h2>
+
+            <div class="related-links">
+                <ul>
+                    <li><a href="https://docs.pytest.org/">Pytest Dokümantasyonu</a></li>
+                    <li><a href="https://testinfra.readthedocs.io/">Testinfra Rehberi</a></li>
+                    <li><a href="https://molecule.readthedocs.io/">Molecule Dokümantasyonu</a></li>
+                    <li><a href="https://docs.python.org/3/">Python 3 Dokümantasyonu</a></li>
+                    <li><a href="https://www.python.org/dev/peps/pep-0008/">PEP 8 — Style Guide</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 32px; margin-bottom: 32px; text-align: left;">
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">Rehber</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="index.html">Ana Sayfa</a></li>
+                        <li><a href="quickstart.html">Hızlı Başlangıç</a></li>
+                        <li><a href="deployment.html">Dağıtım</a></li>
+                        <li><a href="architecture.html">Mimari</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: var(--primary-color); margin-bottom: 12px;">Teknik Rehberler</h4>
+                    <ul style="list-style: none; margin: 0;">
+                        <li><a href="c-cpp-guide.html">C/C++ Rehberi</a></li>
+                        <li><a href="python-guide.html">Python Rehberi</a></li>
+                        <li><a href="api/">API Docs</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 24px 0;">
+            <p>&copy; 2026 OS Typing Projesi. MIT Lisansı ile yayınlanmıştır.</p>
+        </div>
+    </footer>
+
+    <button class="back-to-top" id="backToTop" title="Yukarı Git">↑</button>
+
+    <script>
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTop.classList.add('show');
+            } else {
+                backToTop.classList.remove('show');
+            }
+        });
+        backToTop.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        document.querySelectorAll('pre').forEach(block => {
+            const container = document.createElement('div');
+            container.className = 'code-container';
+            
+            const button = document.createElement('button');
+            button.className = 'copy-button';
+            button.textContent = '📋 Kopyala';
+            
+            button.addEventListener('click', () => {
+                const code = block.querySelector('code') || block;
+                const text = code.textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    button.textContent = '✓ Kopyalandı';
+                    button.classList.add('copied');
+                    setTimeout(() => {
+                        button.textContent = '📋 Kopyala';
+                        button.classList.remove('copied');
+                    }, 2000);
+                });
+            });
+            
+            block.parentNode.insertBefore(container, block);
+            container.appendChild(block);
+            container.appendChild(button);
+        });
+    </script>
+</body>
+</html>

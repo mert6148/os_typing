@@ -1,9 +1,25 @@
 #!/usr/bin/env python3
 """
-Convert os_controlsystem output (or run it) into a JUnit XML file for CI reporting.
+@file os_controlsystem_to_junit.py
+@brief Convert os_controlsystem output into JUnit XML format for CI reporting.
+
+This script parses os_controlsystem output (granular check results like
+[sysctl:key] OK/MISMATCH) and generates JUnit-compatible XML for integration
+with CI/CD systems (e.g., GitHub Actions test-reporter).
+
 Usage:
   ./os_controlsystem_to_junit.py --output test-results/os_controlsystem.junit.xml [--input file]
-If --input is omitted the script will try to run ./os_controlsystem --checks all
+  
+If --input is omitted, the script attempts to run ./os_controlsystem --checks all.
+
+@details
+Expected input line formats:
+  - [sysctl:<key>] OK|MISMATCH expected=.. actual=..
+  - [service:exec] OK|MISMATCH ...
+  - [service:status] active|inactive
+  - [firewall] active and port allowed | port NOT allowed ...
+  
+Each check is converted to a JUnit testcase; OK results pass, MISMATCH/MISSING fail.
 """
 import argparse
 import subprocess

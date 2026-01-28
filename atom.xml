@@ -1,0 +1,27 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <title>OS Hardening</title>
+    <link href="https://os-hardening.com"/>
+    <updated>2026-01-20T12:00:00Z</updated>
+    <author>
+        <name>Mert Doğanay</name>
+    </author>
+    <id>https://os-hardening.com/</id>
+    <entry>
+        <title>OS Hardening</title>
+        <link href="https://os-hardening.com/os-hardening.html"/>
+        <updated>2026-01-20T12:00:00Z</updated>
+        <author>
+            <name>Mert Doğanay</name>
+        </author>
+    </entry>
+    <summary>OS Hardening</summary>
+    <summary>Web Server</summary>
+    <summary>Database</summary>
+    <summary>Network</summary>
+    <summary>Firewall</summary>
+    <summary>VPN</summary>
+    <summary>Proxy</summary>
+    <summary>Email</summary>
+    <summary>Web Application</summary>
+</feed>

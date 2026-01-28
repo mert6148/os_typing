@@ -1,0 +1,41 @@
+---
+# Default variables for os_hardening role
+# These can be overridden in playbook or inventory
+
+# Sysctl kernel parameters (Linux)
+os_hardening_sysctl_config:
+  net.ipv4.ip_forward: 0
+  net.ipv4.conf.default.send_redirects: 0
+  net.ipv4.conf.all.send_redirects: 0
+  net.ipv4.icmp_echo_ignore_all: 0
+  net.ipv4.conf.all.log_martians: 1
+  net.ipv4.conf.default.log_martians: 1
+  net.ipv6.conf.all.forwarding: 0
+  net.ipv6.conf.all.disable_ipv6: 0
+  kernel.core_uses_pid: 1
+
+# Service hardening (systemd)
+os_hardening_service_name: "os_typing"
+os_hardening_service_user: "osapp"
+os_hardening_service_group: "osapp"
+
+# Firewall (UFW on Linux)
+os_hardening_firewall_enabled: true
+os_hardening_firewall_default_policy: "deny"
+os_hardening_firewall_allowed_ports:
+  - port: 22
+    proto: tcp
+    comment: "SSH"
+  - port: 12345
+    proto: tcp
+    comment: "OS Typing service"
+
+# Windows hardening flags
+os_hardening_windows_firewall: true
+os_hardening_windows_disable_smb_v1: true
+os_hardening_windows_defender_enabled: true
+
+# Idempotence control
+os_hardening_skip_sysctl: false
+os_hardening_skip_firewall: false
+os_hardening_skip_service: false

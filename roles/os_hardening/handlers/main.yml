@@ -1,0 +1,31 @@
+---
+# Handlers for os_hardening role
+
+- name: reload sysctl
+  command: sysctl --system
+  become: true
+
+- name: reload systemd daemon
+  systemd:
+    daemon_reload: true
+  become: true
+
+- name: restart os_typing service
+  systemd:
+    name: "{{ os_hardening_service_name }}"
+    state: restarted
+  become: true
+  when: ansible_os_family == "Debian" or ansible_os_family == "RedHat"
+
+- name: enable os_typing service
+  systemd:
+    name: "{{ os_hardening_service_name }}"
+    enabled: true
+    state: started
+  become: true
+  when: ansible_os_family == "Debian" or ansible_os_family == "RedHat"
+
+- name: reload ufw
+  ufw:
+    state: reloaded
+  become: true

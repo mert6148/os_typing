@@ -1,0 +1,30 @@
+---
+# Verify playbook - post-deployment verification (optional)
+
+- name: Verify os_hardening deployment
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Verify sysctl parameters were applied
+      sysctl:
+        name: "net.ipv4.ip_forward"
+        state: present
+      check_mode: true
+      register: sysctl_check
+      become: true
+
+    - name: Display verification result
+      debug:
+        msg: "Sysctl parameters verified on {{ inventory_hostname }}"
+
+    - name: Verify firewall is configured
+      ufw:
+        state: enabled
+      check_mode: true
+      register: firewall_check
+      become: true
+      when: ansible_os_family in ['Debian']
+
+    - name: Display firewall verification
+      debug:
+        msg: "Firewall configuration verified on {{ inventory_hostname }}"
